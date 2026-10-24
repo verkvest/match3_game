@@ -69,19 +69,26 @@ jobs:
           java-version: "17"
 
       - name: Android SDK (API 36, build-tools 36.1.0, NDK 29)
-        uses: android-actions/setup-android@v3
-
-      - name: Install SDK packages
         run: |
           set -euo pipefail
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager --install \
+          # The hosted image already has the SDK. android-actions/setup-android@v3
+          # fails because it still installs the removed "tools" package.
+          ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          if [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+            SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          else
+            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort | tail -1)"
+          fi
+          test -n "$SDKMANAGER" -a -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses >/dev/null || true
+          "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --install \
             "platforms;android-36" \
             "build-tools;36.1.0" \
             "ndk;29.0.14206865" \
             "platform-tools" \
             "cmake;3.22.1"
-          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
 
       - name: Install Godot 4.7.2 and export templates
         run: bash tools/ci/install_godot.sh full

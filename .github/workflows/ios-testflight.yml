@@ -87,8 +87,9 @@ jobs:
           APPSTORE_API_ISSUER_ID: ${{ secrets.APPSTORE_API_ISSUER_ID }}
         run: |
           set -euo pipefail
-          python3 -m pip install --user --quiet 'pyjwt[crypto]'
-          python3 tools/asc_ensure_bundle_id.py
+          python3 -m venv "$RUNNER_TEMP/asc-venv"
+          "$RUNNER_TEMP/asc-venv/bin/pip" install --quiet 'pyjwt[crypto]'
+          "$RUNNER_TEMP/asc-venv/bin/python" tools/asc_ensure_bundle_id.py
 
       - name: Export Godot iOS project
         if: env.HAS_KEY == 'true'
