@@ -261,3 +261,95 @@ func are_neighbors(a, b) -> bool:
     var h_neighbor = (row_a == row_b) and (abs(col_a - col_b) == 1)
     
     return v_neighbor or h_neighbor
+
+
+var _drag_piece: Piece = null
+var _drag_origin := Vector2.ZERO
+
+## Touch and mouse drags swap with the neighbor in that direction.
+## Godot turns a finger drag into mouse events when emulate_mouse_from_touch is on,
+## which is the project default, so one path covers phones and desktop.
+func _input(event: InputEvent) -> void:
+    if not (event is InputEventMouseButton or event is InputEventMouseMotion):
+        return
+    if event is InputEventMouseButton and event.button_index != MOUSE_BUTTON_LEFT:
+        return
+    if action_locked or Events.input_locket:
+        _drag_piece = null
+        return
+    if event is InputEventMouseButton:
+        if event.pressed:
+            if _press_hits_button(event.position):
+                _drag_piece = null
+                return
+            _drag_origin = event.position
+            _drag_piece = _piece_at(event.position)
+        else:
+            if _drag_piece != null:
+                _complete_swipe(event.position)
+            _drag_piece = null
+    elif event is InputEventMouseMotion and _drag_piece != null:
+        if event.position.distance_to(_drag_origin) >= _swipe_threshold():
+            _complete_swipe(event.position)
+            _drag_piece = null
+            get_viewport().set_input_as_handled()
+
+func _swipe_threshold() -> float:
+    var scale := get_global_transform_with_canvas().get_scale().x
+    return maxf(12.0, SPRITE_SIZE * 0.38 * scale)
+
+func _complete_swipe(pos: Vector2) -> void:
+    if _drag_piece == null or not is_instance_valid(_drag_piece):
+        return
+    var delta := pos - _drag_origin
+    if delta.length() < _swipe_threshold():
+        return
+    var dir := Vector2.ZERO
+    if absf(delta.x) > absf(delta.y):
+        dir = Vector2.RIGHT if delta.x > 0.0 else Vector2.LEFT
+    else:
+        dir = Vector2.DOWN if delta.y > 0.0 else Vector2.UP
+    var neighbor := _neighbor_piece(_drag_piece, dir)
+    if neighbor != null:
+        Events.swap_requested.emit(_drag_piece, neighbor)
+
+func _neighbor_piece(source: Piece, dir: Vector2) -> Piece:
+    var idx: int = int(source.index)
+    var col: int = idx % grid_size_x
+    var row: int = int(float(idx) / float(grid_size_x))
+    var ncol: int = col + int(dir.x)
+    var nrow: int = row + int(dir.y)
+    if ncol < 0 or ncol >= grid_size_x or nrow < 0 or nrow >= grid_size_y:
+        return null
+    var other: Piece = pieces[nrow * grid_size_x + ncol]
+    if other == null or not is_instance_valid(other):
+        return null
+    return other
+
+func _piece_at(screen_pos: Vector2) -> Piece:
+    var reach := SPRITE_SIZE * 0.55 * get_global_transform_with_canvas().get_scale().x
+    var best: Piece = null
+    var best_d := reach
+    for entry in pieces:
+        var candidate := entry as Piece
+        if candidate == null or not is_instance_valid(candidate) or not candidate._interactable:
+            continue
+        var center := candidate.get_global_transform_with_canvas().origin
+        var distance := center.distance_to(screen_pos)
+        if distance <= best_d:
+            best = candidate
+            best_d = distance
+    return best
+
+func _press_hits_button(pos: Vector2) -> bool:
+    return _button_contains(get_tree().root, pos)
+
+func _button_contains(node: Node, pos: Vector2) -> bool:
+    if node is BaseButton and node.is_visible_in_tree() and not (node as BaseButton).disabled:
+        if (node as BaseButton).get_global_rect().has_point(pos):
+            return true
+    for child in node.get_children():
+        if _button_contains(child, pos):
+            return true
+    return false
+

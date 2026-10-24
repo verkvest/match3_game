@@ -3,7 +3,7 @@
 [ext_resource type="FontFile" uid="uid://b8me7q0cx2y8e" path="res://assets/fonts/terminal-grotesque.ttf" id="1_sdifh"]
 [ext_resource type="Texture2D" uid="uid://4f367og0edh0" path="res://assets/drawables/9pr_btn_primary.png" id="2_jmntb"]
 [ext_resource type="Texture2D" uid="uid://bgpl450e5j1ln" path="res://assets/drawables/9pr_btn_secondary.png" id="2_lqskn"]
-[ext_resource type="FontFile" uid="uid://p42yca6ye8pg" path="res://assets/fonts/fffforwad.ttf" id="3_y6337"]
+[ext_resource type="FontFile" path="res://assets/fonts/silkscreen.ttf" id="3_y6337"]
 [ext_resource type="Texture2D" uid="uid://vn6mp3i2el56" path="res://assets/drawables/progress.png" id="4_w6vpp"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_jqe7y"]
@@ -57,7 +57,7 @@ spacing_bottom = 2
 
 [resource]
 default_font = ExtResource("3_y6337")
-default_font_size = 12
+default_font_size = 16
 Button/colors/font_color = Color(1, 1, 1, 1)
 Button/colors/font_disabled_color = Color(1, 1, 1, 1)
 Button/colors/font_focus_color = Color(1, 1, 1, 1)
@@ -74,7 +74,7 @@ Button/colors/icon_pressed_color = Color(0, 0, 0, 1)
 Button/constants/h_separation = 0
 Button/constants/icon_max_width = 0
 Button/constants/outline_size = 0
-Button/font_sizes/font_size = 12
+Button/font_sizes/font_size = 16
 Button/fonts/font = ExtResource("3_y6337")
 Button/styles/disabled = SubResource("StyleBoxTexture_jqe7y")
 Button/styles/focus = SubResource("StyleBoxTexture_wone7")

@@ -14,6 +14,7 @@ signal medium_dificulty_reached
 signal hard_dificulty_reached
 signal shuffle_requested
 signal game_over(score)
+signal return_to_menu
 
 # todo: remove all of them and work with signals.
 ## Gobal variables.

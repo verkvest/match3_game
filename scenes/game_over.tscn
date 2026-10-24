@@ -5,11 +5,12 @@
 
 [node name="GameOver" type="Control"]
 texture_filter = 1
-custom_minimum_size = Vector2(216, 384)
 layout_mode = 3
-anchors_preset = 0
-offset_right = 216.0
-offset_bottom = 384.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme = ExtResource("1_cf02u")
 script = ExtResource("2_7qmif")
 

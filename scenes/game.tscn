@@ -1,10 +1,9 @@
-[gd_scene load_steps=19 format=3 uid="uid://b6do74c8c254k"]
+[gd_scene load_steps=18 format=3 uid="uid://b6do74c8c254k"]
 
 [ext_resource type="Script" path="res://scripts/game_ui.gd" id="1_tn0mm"]
 [ext_resource type="Script" path="res://scripts/score_manager.gd" id="2_btnxs"]
 [ext_resource type="Theme" uid="uid://yoxvktkljigt" path="res://resources/themes/ui_theme.tres" id="3_dsy0w"]
 [ext_resource type="Script" path="res://scripts/score.gd" id="4_0ssm6"]
-[ext_resource type="FontFile" uid="uid://p42yca6ye8pg" path="res://assets/fonts/fffforwad.ttf" id="5_a2ccs"]
 [ext_resource type="Script" path="res://scripts/shuffles.gd" id="6_m5hg8"]
 [ext_resource type="Script" path="res://scripts/progress_bar.gd" id="7_jogc1"]
 [ext_resource type="Texture2D" uid="uid://c711s8kw0lhmb" path="res://assets/drawables/9pr_grid.png" id="9_2i22a"]
@@ -26,11 +25,13 @@ anti_aliasing = false
 
 [node name="GameUI" type="Control"]
 texture_filter = 1
-custom_minimum_size = Vector2(216, 384)
 layout_mode = 3
-anchors_preset = 0
-offset_right = 216.0
-offset_bottom = 384.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_tn0mm")
 
 [node name="ScoreManager" type="Node2D" parent="." node_paths=PackedStringArray("progress", "level", "button", "score")]
@@ -59,6 +60,7 @@ offset_right = 216.0
 offset_bottom = 68.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 color = Color(0.0941176, 0.121569, 0.152941, 1)
 
 [node name="HBoxContainer" type="VBoxContainer" parent="."]
@@ -68,6 +70,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="TopBar" type="ColorRect" parent="HBoxContainer"]
 z_index = 1
@@ -108,7 +111,6 @@ z_index = 1
 custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 size_flags_horizontal = 8
-theme_override_fonts/font = ExtResource("5_a2ccs")
 theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_ff3w3")
 text = "1"
@@ -170,7 +172,16 @@ theme_override_constants/margin_bottom = 10
 layout_mode = 2
 alignment = 1
 
+[node name="Menu" type="Button" parent="HBoxContainer/BottomBar/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("3_dsy0w")
+text = "Menu"
+script = ExtResource("10_lw0op")
+
 [node name="Shuffle" type="Button" parent="HBoxContainer/BottomBar/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_horizontal = 3
 theme = ExtResource("3_dsy0w")
@@ -206,4 +217,6 @@ script = ExtResource("18_nc1eg")
 
 [connection signal="value_changed" from="HBoxContainer/TopBar/HBoxContainer/MarginContainer/CurrentLevelProgress" to="HBoxContainer/TopBar/HBoxContainer/MarginContainer/CurrentLevelProgress" method="_on_value_changed"]
 [connection signal="focus_entered" from="HBoxContainer/BottomBar/MarginContainer/HBoxContainer/Shuffle" to="HBoxContainer/BottomBar/MarginContainer/HBoxContainer/Shuffle" method="_on_focus_entered"]
+[connection signal="focus_entered" from="HBoxContainer/BottomBar/MarginContainer/HBoxContainer/Menu" to="HBoxContainer/BottomBar/MarginContainer/HBoxContainer/Menu" method="_on_focus_entered"]
+[connection signal="pressed" from="HBoxContainer/BottomBar/MarginContainer/HBoxContainer/Menu" to="." method="_on_menu_pressed"]
 [connection signal="pressed" from="HBoxContainer/BottomBar/MarginContainer/HBoxContainer/Shuffle" to="ScoreManager" method="_on_btn_shuffle_pressed"]
