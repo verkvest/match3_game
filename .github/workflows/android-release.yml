@@ -44,6 +44,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$CINDERMOTE_SCREENSHOT"
+          # PNG/font importers and class_name registration only exist after an
+          # editor import. Without it the game stays open and the step times out.
+          "$GODOT_BIN" --headless --path . --import
           # Force X11 + OpenGL. A Vulkan probe on the hosted runner never
           # presents a frame, so the screenshot wait would hang.
           timeout 180 xvfb-run -a -s "-screen 0 1280x720x24 +extension GLX +render -noreset" \
