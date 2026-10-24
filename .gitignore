@@ -3,3 +3,5 @@
 *.import
 !assets/fonts/*.ttf.import
 build/
+# Godot Android gradle sources, unpacked in CI from android_source.zip.
+/android/

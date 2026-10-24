@@ -31,7 +31,7 @@ jobs:
       - name: Display libraries
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb libgl1 libxcursor1 libxi6 libxrandr2 libxinerama1 libx11-6 libfontconfig1
+          sudo apt-get install -y xvfb libgl1 libgl1-mesa-dri libxcursor1 libxi6 libxrandr2 libxinerama1 libx11-6 libfontconfig1 mesa-utils
           sudo apt-get install -y libglu1-mesa || true
           sudo apt-get install -y libasound2t64 || sudo apt-get install -y libasound2
       - name: Install Godot 4.7.2
@@ -39,11 +39,20 @@ jobs:
       - name: Capture menu and level at iPhone 14 logical size
         env:
           CINDERMOTE_SCREENSHOT: ${{ runner.temp }}/shots
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          GALLIUM_DRIVER: llvmpipe
         run: |
           set -euo pipefail
           mkdir -p "$CINDERMOTE_SCREENSHOT"
-          xvfb-run -a -s "-screen 0 390x844x24" \
-            "$GODOT_BIN" --path . --resolution 390x844 --audio-driver Dummy
+          # Force X11 + OpenGL. A Vulkan probe on the hosted runner never
+          # presents a frame, so the screenshot wait would hang.
+          timeout 180 xvfb-run -a -s "-screen 0 1280x720x24 +extension GLX +render -noreset" \
+            "$GODOT_BIN" --path . \
+              --display-driver x11 \
+              --rendering-driver opengl3 \
+              --rendering-method gl_compatibility \
+              --audio-driver Dummy \
+              --resolution 390x844
           ls -la "$CINDERMOTE_SCREENSHOT"
           test -s "$CINDERMOTE_SCREENSHOT/menu.png"
           test -s "$CINDERMOTE_SCREENSHOT/level.png"
@@ -92,6 +101,20 @@ jobs:
 
       - name: Install Godot 4.7.2 and export templates
         run: bash tools/ci/install_godot.sh full
+
+      - name: Install Android build template
+        run: |
+          set -euo pipefail
+          # use_gradle_build needs res://android/build from android_source.zip.
+          # Godot's editor writes android/.build_version as 4.7.2.stable.
+          TMPL="${XDG_DATA_HOME:-$HOME/.local/share}/godot/export_templates/4.7.2.stable"
+          test -f "$TMPL/android_source.zip"
+          rm -rf android
+          mkdir -p android/build
+          printf '4.7.2.stable\n' > android/.build_version
+          : > android/build/.gdignore
+          unzip -q -o "$TMPL/android_source.zip" -d android/build
+          test -f android/build/build.gradle
 
       - name: Debug keystore and editor settings
         run: |

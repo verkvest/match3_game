@@ -173,7 +173,12 @@ jobs:
             -allowProvisioningUpdates -authenticationKeyPath "$KEYFILE" \
             -authenticationKeyID "$APPSTORE_API_KEY_ID" -authenticationKeyIssuerID "$APPSTORE_API_ISSUER_ID"
           ls -la "$RUNNER_TEMP/export"
-          if [ "${APP_RECORD:-unknown}" = "no" ]; then
+          # Re-check immediately before upload. The record may have been
+          # created while the archive was building, and GITHUB_ENV from the
+          # earlier step would still say it was missing.
+          record="$("$RUNNER_TEMP/asc-venv/bin/python" tools/asc_ensure_bundle_id.py | tee "$RUNNER_TEMP/asc-record.log" | awk -F= '/^APP_RECORD=/{v=$2} END{print v}')"
+          echo "APP_RECORD=$record"
+          if [ "$record" = "no" ]; then
             echo "::error::No App Store Connect app record for $BUNDLE_ID. Export, archive, and App Store signing succeeded. The API cannot create the app record, so the upload was not attempted. Create it in App Store Connect → Apps → + → New App (name: $APP_NAME, bundle id: $BUNDLE_ID, SKU: cindermote), then re-run this workflow."
             exit 1
           fi

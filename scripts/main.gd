@@ -92,13 +92,16 @@ func _maybe_capture_screenshots() -> void:
     if dir.is_empty():
         return
     DirAccess.make_dir_recursive_absolute(dir)
+    print("screenshot: waiting for menu frame")
     await RenderingServer.frame_post_draw
     await get_tree().create_timer(0.6).timeout
     _save_viewport(dir, "menu")
     _on_btn_new_game_pressed()
+    print("screenshot: waiting for level frame")
     await get_tree().create_timer(2.4).timeout
     await RenderingServer.frame_post_draw
     _save_viewport(dir, "level")
+    print("screenshot: done")
     get_tree().quit()
 
 func _save_viewport(dir: String, shot_name: String) -> void:

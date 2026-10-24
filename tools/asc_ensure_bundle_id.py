@@ -60,9 +60,9 @@ def _request(method: str, url: str, token: str, body=None):
 
 
 def _write_env(flag: str) -> None:
+    print(f"APP_RECORD={flag}")
     path = os.environ.get("GITHUB_ENV")
     if not path:
-        print(f"APP_RECORD={flag}")
         return
     with open(path, "a", encoding="utf-8") as handle:
         handle.write(f"APP_RECORD={flag}\n")
